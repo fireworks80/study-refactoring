@@ -1,42 +1,48 @@
-export default function createStatementData(invoice, plays) {
-  function playFor(aPerformance) {
-    return plays[aPerformance.playID];
+class PerformanceCalculator {
+  constructor(aPerformance, aPlay) {
+    this.performance = aPerformance;
+    this.play = aPlay;
   }
-
-  function amountFor(aPerformance) {
+  get amount() {
     let result = 0;
 
-    switch (aPerformance.play.type) {
+    switch (this.play.type) {
       case 'tragedy': // 비극
         result = 40000;
-        if (aPerformance.audience > 30) {
-          result += 1000 * (aPerformance.audience - 30);
+        if (this.performance.audience > 30) {
+          result += 1000 * (this.performance.audience - 30);
         }
         break;
 
       case 'comedy': //희극
         result = 30000;
-        if (aPerformance.audience > 20) {
-          result += 10000 + 500 * (aPerformance.audience - 20);
+        if (this.performance.audience > 20) {
+          result += 10000 + 500 * (this.performance.audience - 20);
         }
-        result += 300 * aPerformance.audience;
+        result += 300 * this.performance.audience;
         break;
 
       default:
-        throw new Error(`알 수 없는 장르: ${aPerformance.play.type}`);
+        throw new Error(`알 수 없는 장르: ${this.play.type}`);
     } // switch
 
     return result;
   }
-
-  function volumeCreditsFor(aPerformance) {
+  get volumeCredit() {
     let result = 0;
     // 포인트를 적립한다.
-    result += Math.max(aPerformance.audience - 30, 0);
+    result += Math.max(this.performance.audience - 30, 0);
 
     // 희극 관객 5명마다 추가 포인트를 제공한다.
-    if ('comedy' === aPerformance.play.type) result += Math.floor(aPerformance.audience / 5);
+    if ('comedy' === this.play.type) result += Math.floor(this.performance.audience / 5);
+
     return result;
+  }
+}
+
+export default function createStatementData(invoice, plays) {
+  function playFor(aPerformance) {
+    return plays[aPerformance.playID];
   }
 
   function totalAmount(data) {
@@ -48,12 +54,9 @@ export default function createStatementData(invoice, plays) {
   }
 
   const enrichPerformance = (aPerformance) => {
-    const result = structuredClone(aPerformance);
-    result.play = playFor(result);
-    result.amount = amountFor(result);
-    result.volumeCredit = volumeCreditsFor(result);
+    const { play, amount, volumeCredit } = new PerformanceCalculator(aPerformance, playFor(aPerformance));
 
-    return result;
+    return { ...structuredClone(aPerformance), play, amount, volumeCredit };
   };
 
   const statementData = {};
