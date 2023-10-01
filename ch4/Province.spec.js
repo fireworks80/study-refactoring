@@ -14,6 +14,6 @@ describe('province', () => {
   });
 
   it('profit', () => {
-    expect(asia.profit).equal(230);
+    expect(asia.profit).equal(480);
   });
 });

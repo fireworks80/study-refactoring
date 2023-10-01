@@ -5,7 +5,8 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "nodemon"
+    "start": "nodemon",
+    "test": "yarn start --exec 'mocha Province.spec.js'"
   },
   "dependencies": {
     "chai": "^4.3.7",
